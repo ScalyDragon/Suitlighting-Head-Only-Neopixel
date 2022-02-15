@@ -1,29 +1,31 @@
+using namespace std;
+
 #include <Arduino.h>
-#include <NeoPixelBus.h>
-#include <FastLED.h>
-#include "AZDeliveryESP32_pinMapping.h"
+#include "../lib/AZDeliveryESP32_pinMapping.h"
+
+#include "../lib/NeoPixelManager/NeoPixelManager.h"
+#include "../lib/TouchHandler/TouchHandler.h"
 
 
-#define NOSE_BOOP_PIN NC
+#define NOSE_BOOP_PIN G25
 #define STRIPDATAPIN G14
-#define PIXELCOUNTPERSTRIP 300
+#define PIXELCOUNT 300
 
-RgbColor red(255,0,0);
-RgbColor green(0,255,0);
-RgbColor blue(0,0,255);
-RgbColor white(255);
-RgbColor pink(240,10,200);
-RgbColor gelb(255,220,10);
-RgbColor schwarz(0);
+NeoPixelManager ledManager(STRIPDATAPIN);
+TouchHandler touchHandler(NOSE_BOOP_PIN);
+NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(STRIPDATAPIN, PIXELCOUNT);
 
-
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PIXELCOUNTPERSTRIP, STRIPDATAPIN);
+RgbColor blue(0, 0, 255);
 
 void setup() {
-  strip.Begin();
-  strip.Show();
+    ledManager.init(&strip);
+    touchHandler.init();
+    ledManager.setPixelArea(0, 10, blue);
 }
 
 void loop() {
-
+    while(true){
+        ledManager.loopHandler();
+        touchHandler.loopHandler();
+    }
 }
