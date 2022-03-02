@@ -6,13 +6,25 @@
 #define FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_TOUCHHANDLER_H
 
 
+#include <stdint.h>
+#include "../helperStructures.h"
+
 class TouchHandler {
 public:
     TouchHandler(int dataPin_In);
-    void init();
+    void init(persistence* persistenceDataIn);
     void loopHandler();
+    int getRAW();
+    void setThreshold(int threshold);
 private:
     int dataPin;
+    uint16_t touchThreshold;
+    bool touchDetected;
+    persistence* persistenceData;
+    void updateFromPersistence();
+    void pushToPersistence();
+    void syncInterrupt();
+    void resetInterrupt();
 };
 
 

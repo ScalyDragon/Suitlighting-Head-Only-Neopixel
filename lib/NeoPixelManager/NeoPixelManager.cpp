@@ -3,13 +3,13 @@
 //
 
 #include "NeoPixelManager.h"
+#include "../helperStructures.h"
 
 NeoPixelManager::NeoPixelManager(int dataPin) {
     strip = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(dataPin, pixelcount);
 }
 
-void NeoPixelManager::init(NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> *strip_In) {
-    strip = strip_In;
+void NeoPixelManager::init() {
     strip->Begin();
     strip->Show();
 }

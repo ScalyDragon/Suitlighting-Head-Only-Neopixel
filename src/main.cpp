@@ -5,6 +5,7 @@ using namespace std;
 
 #include "../lib/NeoPixelManager/NeoPixelManager.h"
 #include "../lib/TouchHandler/TouchHandler.h"
+#include "../lib/helperStructures.h"
 
 
 #define NOSE_BOOP_PIN G25
@@ -13,14 +14,12 @@ using namespace std;
 
 NeoPixelManager ledManager(STRIPDATAPIN);
 TouchHandler touchHandler(NOSE_BOOP_PIN);
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(STRIPDATAPIN, PIXELCOUNT);
 
-RgbColor blue(0, 0, 255);
+persistence persistenceData;
 
 void setup() {
-    ledManager.init(&strip);
-    touchHandler.init();
-    ledManager.setPixelArea(0, 10, blue);
+    ledManager.init();
+    touchHandler.init(&persistenceData);
 }
 
 void loop() {

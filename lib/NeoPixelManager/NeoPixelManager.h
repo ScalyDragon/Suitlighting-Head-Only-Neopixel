@@ -8,8 +8,6 @@ using namespace std;
 #include <NeoPixelBus.h>
 #include "../AZDeliveryESP32_pinMapping.h"
 
-#define STRIPDATAPIN G14
-#define PIXELCOUNT 300
 
 //Helper includes for IDE
 #include "internal/NeoAvrMethod.h"
@@ -22,7 +20,7 @@ class NeoPixelManager {
 public:
     NeoPixelManager(int dataPin);
     void setPixelcount(int pixelcount);
-    void init(NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> *strip_In);
+    void init();
     void loopHandler();
     void setPixelArea(int start, int end, RgbColor color);
 private:
