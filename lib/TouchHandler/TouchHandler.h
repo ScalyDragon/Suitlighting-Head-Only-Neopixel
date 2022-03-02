@@ -12,7 +12,7 @@
 class TouchHandler {
 public:
     TouchHandler(int dataPin_In);
-    void init(persistence* persistenceDataIn);
+    void init(Persistence* persistenceDataIn);
     void loopHandler();
     int getRAW();
     void setThreshold(int threshold);
@@ -20,7 +20,7 @@ private:
     int dataPin;
     uint16_t touchThreshold;
     bool touchDetected;
-    persistence* persistenceData;
+    Persistence* persistenceData;
     void updateFromPersistence();
     void pushToPersistence();
     void syncInterrupt();

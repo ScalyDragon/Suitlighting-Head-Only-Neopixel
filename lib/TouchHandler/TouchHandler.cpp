@@ -15,7 +15,7 @@ static void interruptHandler(){
     touchDetectedRAW = true;
 }
 
-void TouchHandler::init(persistence *persistenceDataIn) {
+void TouchHandler::init(Persistence *persistenceDataIn) {
     persistenceData = persistenceDataIn;
     updateFromPersistence();
     touchSetCycles(16384,0x1000);

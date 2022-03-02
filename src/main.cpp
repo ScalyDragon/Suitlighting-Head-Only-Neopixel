@@ -8,14 +8,14 @@ using namespace std;
 #include "../lib/helperStructures.h"
 
 
-#define NOSE_BOOP_PIN G25
+#define NOSE_BOOP_PIN G12
 #define STRIPDATAPIN G14
 #define PIXELCOUNT 300
 
-NeoPixelManager ledManager(STRIPDATAPIN);
+NeoPixelManager ledManager(STRIPDATAPIN, PIXELCOUNT);
 TouchHandler touchHandler(NOSE_BOOP_PIN);
 
-persistence persistenceData;
+Persistence persistenceData;
 
 void setup() {
     ledManager.init();
