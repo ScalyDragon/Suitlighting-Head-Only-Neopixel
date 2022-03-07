@@ -24,27 +24,64 @@ static uint32_t ssub32(uint32_t a, uint32_t b) {
     return (b > a) ? 0 : a - b;
 }
 
+static uint16_t satf16(float f) {
+    return f > 0xFFFF ? 0xFFFF : f < 0 ? 0 : roundf(f);
+}
+
+static uint8_t satf8(float f) {
+    return f > 0xFF ? 0xFF : f < 0 ? 0 : roundf(f);
+}
+
 struct Persistence {
     bool touch;
     uint16_t touchThreshold, touchMinVal, touchMaxVal;
 };
 
 struct Color {
-    uint16_t r, g, b;
+    float r, g, b;
 
-    Color(int r = 0, int g = 0, int b = 0) : r(r), g(g), b(b) {}
+    Color(float r = 0, float g = 0, float b = 0) : r(r), g(g), b(b) {}
 
     Color normalized() {
-        float length = sqrtf(r * r + g * g + b * b);
-        return Color(lroundf((r / length)), lroundf(g / length), lroundf(b / length));
+        return Color(r / lengthf(), g / lengthf(), b / lengthf());
     }
 
     Color add(Color toAdd) {
-        return Color(sadd16(r,toAdd.r),sadd16(g,toAdd.g),sadd16(b,toAdd.b));
+        return Color(r + toAdd.r, g + toAdd.g, b + toAdd.b);
     }
 
     Color sub(Color toSub) {
-        return Color(ssub16(r,toSub.r), ssub16(g,toSub.g), ssub16(b, toSub.b));
+        return Color(r - toSub.r, g - toSub.g, b - toSub.b);
+    }
+
+    Color smul(float mul) {
+        return Color(r * mul, g * mul, b * mul);
+    }
+
+    float lengthf() {
+        return sqrtf(r * r + g * g + b * b);
+    }
+
+    int length() {
+        return roundl(lengthf());
+    }
+
+    bool equals(Color c1) {
+        return r == c1.r && g == c1.g && b == c1.b;
+    }
+
+    void setColor(Color c1){
+        r = c1.r;
+        g = c1.g;
+        b = c1.b;
+    }
+
+    Color toUint16() {
+        return Color(satf16(r), satf16(g), satf16(b));
+    }
+
+    Color toInt8() {
+        return Color(satf8(r), satf8(g), satf8(b));
     }
 };
 

@@ -6,6 +6,7 @@ using namespace std;
 #include <Arduino.h>
 #include "../lib/NeoPixelManager/NeoPixelManager.h"
 #include "../lib/TouchHandler/TouchHandler.h"
+#include "../lib/NeopixelAnimator/NeopixelAnimator.h"
 #include <unity.h>
 #include "../lib/AZDeliveryESP32_pinMapping.h"
 
@@ -15,6 +16,7 @@ using namespace std;
 
 NeoPixelManager *ledManager;
 TouchHandler *touchHandler;
+NeopixelAnimator *animator;
 Color blue(0, 0, 255);
 Color red(255, 0, 0);
 Persistence persistentData;
@@ -67,20 +69,50 @@ void isColorEqual(Color c1, Color c2) {
     TEST_ASSERT_EQUAL(c1.b, c2.b);
 }
 
+void test_Persistance_Color_toUint16(void) {
+    Color c1(0xFFFF, 100, 0);
+    Color c2(0xFFFF * 2, 100, 0);
+    isColorEqual(Color(0xFFFF, 100, 0), c1.toUint16());
+    isColorEqual(Color(0xFFFF, 100, 0), c2.toUint16());
+}
+
 void test_Persistence_Color_add(void) {
     Color c1(0xFFFF, 0, 0xFFFF);
     Color c2(0xFFFF, 0xFFFF, 0xFFFF);
     Color c3(0xFFFF, 100, 0xFFFF);
-    isColorEqual(Color(0xFFFF, 0xFFFF, 0xFFFF), c1.add(c2));
-    isColorEqual(Color(0xFFFF, 100, 0xFFFF), c1.add(c3));
+    isColorEqual(Color(0xFFFF * 2, 0xFFFF, 0xFFFF * 2), c1.add(c2));
+    isColorEqual(Color(0xFFFF * 2, 100, 0xFFFF * 2), c1.add(c3));
 }
 
 void test_Persistance_Color_sub(void) {
     Color c1(255, 150, 255);
     Color c2(255, 200, 255);
     Color c3(100, 100, 100);
-    isColorEqual(Color(0, 0, 0), c1.sub(c2));
+    isColorEqual(Color(0, -50.0f, 0), c1.sub(c2));
     isColorEqual(Color(155, 50, 155), c1.sub(c3));
+}
+
+void test_Persistance_Color_smul(void) {
+    Color c1(255, 150, 200);
+    isColorEqual(Color(510, 300, 400), c1.smul(2.0f));
+}
+
+void test_Persistance_Color_length(void) {
+    Color c1(100, 0, 0);
+    TEST_ASSERT_EQUAL(100, c1.length());
+}
+
+void test_Persistance_Color_lengthf(void) {
+    Color c1(100, 0, 0);
+    TEST_ASSERT_EQUAL(100.0f, c1.lengthf());
+}
+
+void test_Persistance_Color_equals(void) {
+    Color c1(100, 0, 0);
+    Color c2(0, 100, 0);
+    Color c3(0, 100, 0);
+    TEST_ASSERT_EQUAL(false, c1.equals(c2));
+    TEST_ASSERT_EQUAL(true, c2.equals(c3));
 }
 
 void test_Persistance_sadd16(void) {
@@ -114,9 +146,12 @@ void test_NeoPixelManager_init(void) {
 void test_NeoPixelManager_setPixel1to10(void) {
     ledManager->setPixelArea(0, 5, blue);
     ledManager->loopHandler();
+    isColorEqual(blue,ledManager->getCurrentColorBuffer()[0]);
     delay(1000);
     ledManager->setPixelArea(3, 10, red);
     ledManager->loopHandler();
+    isColorEqual(red,ledManager->getCurrentColorBuffer()[3]);
+    delay(1000);
 }
 
 void test_NeoPixelManager_getColorOfUint32(void) {
@@ -126,8 +161,67 @@ void test_NeoPixelManager_getColorOfUint32(void) {
     TEST_ASSERT_EQUAL(0xff, color.b);
 }
 
+void isColorAreaEqual(Color *buffer, Color target, int start, int end) {
+    for (int i = start; i < end; i++) {
+        isColorEqual(target, buffer[i]);
+    }
+}
+
+void test_NeoPixelManager_getTargetBufferValid(void){
+    ledManager->setPixelArea(0,10,Color(0,0,0));
+    isColorEqual(Color(0,0,0), ledManager->getTargetColorBuffer()[0]);
+    ledManager->setPixelArea(0,10,Color(0,0,100));
+    isColorEqual(Color(0,0,100), ledManager->getTargetColorBuffer()[0]);
+}
+
+void test_NeoPixelManager_setArea(void){
+    ledManager->setSmooth(false);
+    ledManager->setSmoothStepwidth(1.0f);
+    ledManager->setPixelArea(0,10,Color(0,0,0));
+    ledManager->loopHandler();
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(),Color(0,0,0),0,10);
+    ledManager->setPixelArea(0,10,Color(0,0,100));
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(),Color(0,0,0),0,10);
+    ledManager->loopHandler();
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(),Color(0,0,100),0,10);
+}
+
 void test_NeoPixelManager_fadeIn(void) {
+    ledManager->setPixelArea(0, 10, Color(0, 0, 0));
+    ledManager->loopHandler();
     ledManager->setSmooth(true);
+    ledManager->setSmoothStepwidth(1);
+    ledManager->setPixelArea(0, 10, Color(0, 0, 100));
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(), Color(0, 0, 0), 0, 10);
+    ledManager->loopHandler();
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(), Color(0, 0, 1), 0, 10);
+    for(int i = 1; i < 100; i++)
+        ledManager->loopHandler();
+    isColorAreaEqual(ledManager->getCurrentColorBuffer(), Color(0, 0, 100), 0, 10);
+}
+
+void test_NeopixelAnimator_objectCreation(void){
+    animator = new NeopixelAnimator(ledManager,&persistentData);
+}
+
+void test_NeopixelAnimator_init(void){
+    animator->init();
+}
+
+void test_NeopixelAnimator_loop(void){
+    animator->loopHandler();
+}
+
+void test_NeopixelAnimator_setBoopColor(void){
+    animator->setBoopColor(Color(200,0,0));
+}
+
+void test_NeopixelAnimator_setIdleColor(void){
+    animator->setIdleColor(Color(0,0,200));
+}
+
+void test_NeoPixelAnimator_getCurrentTargetColor(void){
+    isColorEqual(Color(100,0,0),animator->getCurrentTargetColor());
 }
 
 void setup() {
@@ -145,16 +239,37 @@ void setup() {
     RUN_TEST(test_Persistance_ssub32);
     RUN_TEST(test_Persistence_Color_add);
     RUN_TEST(test_Persistance_Color_sub);
+    RUN_TEST(test_Persistance_Color_smul);
+    RUN_TEST(test_Persistance_Color_normalize);
+    RUN_TEST(test_Persistance_Color_length);
+    RUN_TEST(test_Persistance_Color_lengthf);
+    RUN_TEST(test_Persistance_Color_equals);
+    RUN_TEST(test_Persistance_Color_toUint16);
+    RUN_TEST(test_NeoPixelManager_getTargetBufferValid);
+    RUN_TEST(test_NeopixelAnimator_objectCreation);
+    RUN_TEST(test_NeopixelAnimator_init);
+    RUN_TEST(test_NeopixelAnimator_setBoopColor);
+    RUN_TEST(test_NeopixelAnimator_setIdleColor);
+    //RUN_TEST(test_NeopixelAnimator_loop);
     delay(500);
-}
-
-void loop() {
     RUN_TEST(test_TouchHandler_nonZeroValue);
     RUN_TEST(test_TouchHandler_thresholdPersistenceUpdated);
     RUN_TEST(test_TouchHandler_noTouchDetected);
     RUN_TEST(test_TouchHandler_touchDetected);
     RUN_TEST(test_NeoPixelManager_setPixel1to10);
     RUN_TEST(test_NeoPixelManager_getColorOfUint32);
+    RUN_TEST(test_NeoPixelManager_setArea);
+    RUN_TEST(test_NeoPixelManager_fadeIn);
     UNITY_END();
-    exit(0);
+    ledManager->setSmoothStepwidth(1);
+    touchHandler->setThreshold(140);
+    animator->setBoopColor(red);
+    animator->setIdleColor(blue);
+}
+
+void loop() {
+    ledManager->loopHandler();
+    touchHandler->loopHandler();
+    animator->loopHandler();
+    delay(1);
 }
