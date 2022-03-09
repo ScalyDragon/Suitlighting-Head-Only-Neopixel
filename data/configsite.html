@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Fursuit configuration page</h1>
+<label for="idlecolor">Select idle color:</label>
+<input type="color" id="idlecolor" name="idlecolor" value="#ff0000" onchange="updateIdleColor(this)">
+<br>
+<label for="boopcolor">Select boop color:</label>
+<input type="color" id="boopcolor" name="boopcolor" value="#0000ff" onchange="updateBoopColor(this)">
+<br>
+<button>Send</button>
+</body>
+<script>
+    function updateIdleColor() {
+        var colorValue = document.getElementById("idlecolor").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","/idlecolor?value="+colorValue, true);
+        xhr.send();
+    }
+    function updateBoopColor() {
+        var colorValue = document.getElementById("boopcolor").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","/boopcolor?value="+colorValue, true);
+        xhr.send();
+    }
+</script>
+</html>

@@ -6,6 +6,7 @@ using namespace std;
 #include "../lib/NeoPixelManager/NeoPixelManager.h"
 #include "../lib/TouchHandler/TouchHandler.h"
 #include "../lib/helperStructures.h"
+#include "../lib/NeopixelAnimator/NeopixelAnimator.h"
 
 
 #define NOSE_BOOP_PIN G12
