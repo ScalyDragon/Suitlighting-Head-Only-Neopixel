@@ -2,27 +2,101 @@
 <html>
 <body>
 
-<h1>Fursuit configuration page</h1>
-<label for="idlecolor">Select idle color:</label>
+<h1>Fursuit Konfigurationsseite</h1>
+<label for="idlecolor">Idle-Farbe:</label>
 <input type="color" id="idlecolor" name="idlecolor" value="#ff0000" onchange="updateIdleColor(this)">
 <br>
-<label for="boopcolor">Select boop color:</label>
+<label for="boopcolor">Boop-Farbe:</label>
 <input type="color" id="boopcolor" name="boopcolor" value="#0000ff" onchange="updateBoopColor(this)">
 <br>
-<button>Send</button>
+<br>
+<label for="dimspeedslider">Geschwindigkeit Fade</label>
+<div class="dimspeedslider">
+    <input type="range" min="0" max="100" value="3" class="slider" id="dimspeedslider" onchange="updateDimSpeedSlider(this)">
+</div>
+<input type="text" placeholder="---" id="dimspeedDisplay" onchange="updateDimSpeedBox()">
+<label>langsamer------schneller</label>
+<br>
+<br>
+<label for="sensitivityslider">Empfindlichkeit</label>
+<div class="sensitivityslider">
+    <input type="range" min="0" max="255" value="3" class="slider" id="sensitivityslider" onchange="updateSensitivitySlider(this)">
+</div>
+<input type="text" placeholder="---" id="sensitivityDisplay" onchange="updateSensitivityDisplay()">
+<label>weniger------mehr</label>
 </body>
 <script>
+    function updateDimSpeedSlider() {
+        var dimspeed = document.getElementById("dimspeedslider").value;
+        document.getElementById("dimspeedDisplay").value = dimspeed / 10.0;
+        updateDimSpeed();
+    }
+
+    function updateDimSpeedBox() {
+        var dimspeed = document.getElementById("dimspeedDisplay").value;
+        document.getElementById("dimspeedslider").value = dimspeed * 10;
+        updateDimSpeed();
+    }
+
+    function updateSensitivitySlider() {
+        var sens = document.getElementById("sensitivityslider").value;
+        document.getElementById("sensitivityDisplay").value = sens;
+        updateSensitivity();
+    }
+
+    function updateSensitivityDisplay() {
+        var sens = document.getElementById("sensitivityDisplay").value;
+        document.getElementById("sensitivityslider").value = sens;
+        updateSensitivity();
+    }
+
+    function updateSensitivity() {
+        var sens = document.getElementById("sensitivityslider").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/sensitivity?value=" + sens, true);
+        xhr.send();
+    }
+
+    function updateDimSpeed() {
+        var dimspeed = document.getElementById("dimspeedslider").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/dimspeed?value=" + dimspeed, true);
+        xhr.send();
+    }
+
     function updateIdleColor() {
         var colorValue = document.getElementById("idlecolor").value;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET","/idlecolor?value="+colorValue, true);
+        xhr.open("GET", "/idlecolor?value=" + colorValue.substring(1), true);
         xhr.send();
     }
+
     function updateBoopColor() {
         var colorValue = document.getElementById("boopcolor").value;
         var xhr = new XMLHttpRequest();
-        xhr.open("GET","/boopcolor?value="+colorValue, true);
+        xhr.open("GET", "/boopcolor?value=" + colorValue.substring(1), true);
         xhr.send();
     }
+
+    function getUpdate() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var obj = JSON.parse(xhr.responseText);
+                if (obj.idlecolor != "")
+                    document.getElementById("idlecolor").value = "#" + obj.idlecolor;
+                if (obj.boopcolor != "")
+                    document.getElementById("boopcolor").value = "#" + obj.boopcolor;
+                document.getElementById("dimspeedslider").value = obj.fadespeed;
+                document.getElementById("dimspeedDisplay").value = obj.fadespeed / 10;
+                document.getElementById("sensitivityslider").value = obj.sensitivity;
+                document.getElementById("sensitivityDisplay").value = obj.sensitivity;
+            }
+        }
+        xhr.open("GET", "/update", true);
+        xhr.send();
+    }
+
+    window.onload = getUpdate;
 </script>
 </html>

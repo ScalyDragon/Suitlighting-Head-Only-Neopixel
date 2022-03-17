@@ -6,7 +6,8 @@
 #include <Arduino.h>
 #include "../helperStructures.h"
 
-TouchHandler::TouchHandler(int dataPin_In) {
+TouchHandler::TouchHandler(int dataPin_In, Persistence *persistenceDataIn) {
+    persistenceData = persistenceDataIn;
     dataPin = dataPin_In;
 }
 
@@ -15,8 +16,7 @@ static void interruptHandler(){
     touchDetectedRAW = true;
 }
 
-void TouchHandler::init(Persistence *persistenceDataIn) {
-    persistenceData = persistenceDataIn;
+void TouchHandler::init() {
     updateFromPersistence();
     touchSetCycles(16384,0x1000);
     touchAttachInterrupt(dataPin,interruptHandler,touchThreshold);
@@ -36,16 +36,20 @@ int TouchHandler::getRAW() {
 void TouchHandler::setThreshold(int thresholdIn) {
     touchThreshold = thresholdIn;
     touchAttachInterrupt(dataPin, interruptHandler, touchThreshold);
-    pushToPersistence();
 }
 
 void TouchHandler::updateFromPersistence() {
-    touchThreshold = persistenceData->touchThreshold;
+    persistenceData->lock();
+    if(persistenceData->touchThreshold != touchThreshold) {
+        setThreshold(persistenceData->touchThreshold);
+    }
+    persistenceData->unlock();
 }
 
 void TouchHandler::pushToPersistence() {
-    persistenceData->touchThreshold     = touchThreshold;
+    persistenceData->lock();
     persistenceData->touch              = touchDetected;
+    persistenceData->unlock();
 }
 
 void TouchHandler::syncInterrupt() {
@@ -55,4 +59,8 @@ void TouchHandler::syncInterrupt() {
 
 void TouchHandler::resetInterrupt() {
     touchDetectedRAW = false;
+}
+
+int TouchHandler::getTouchThreshold() {
+    return touchThreshold;
 }

@@ -11,18 +11,29 @@ using namespace std;
 #include "ESPAsyncWebServer.h"
 #include "../helperStructures.h"
 #include "SPIFFS.h"
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
+#include "atomic"
 
 class WebsiteController {
 public:
     WebsiteController(Persistence *persistence);
+
     void init();
+
     void loopHandler();
+
+    int checkSPIFFS();
+
 private:
-    AsyncWebServer* server;
+    AsyncWebServer *server;
     Persistence *persistentData;
     long idleColor = 0x0000FF;
     long boopColor = 0xFF0000;
+    uint16_t fadespeed = 10;
+    uint16_t sensitivity;
     void updatePersistence();
+    bool saveReq;
 };
 
 

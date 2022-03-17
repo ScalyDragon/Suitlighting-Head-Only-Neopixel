@@ -47,7 +47,7 @@ void NeoPixelManager::updateBufferWithStepwidth(float stepwidth) {
     for (int i = 0; i < pixelcount; i++) {
         if (!ledCurrentStateBuffer[i].equals(ledTargetStateBuffer[i])) {
             Color diffvec = ledTargetStateBuffer[i].sub(ledCurrentStateBuffer[i]);
-            if (diffvec.length() > stepwidth)
+            if (diffvec.lengthf() > stepwidth)
                 ledCurrentStateBuffer[i].setColor(ledCurrentStateBuffer[i].add(diffvec.normalized().smul(stepwidth)));
             else
                 ledCurrentStateBuffer[i].setColor(ledTargetStateBuffer[i]);

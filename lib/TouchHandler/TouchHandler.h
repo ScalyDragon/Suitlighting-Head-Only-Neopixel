@@ -7,15 +7,16 @@
 
 
 #include <stdint.h>
+#include <atomic>
 #include "../helperStructures.h"
 
 class TouchHandler {
 public:
-    TouchHandler(int dataPin_In);
-    void init(Persistence* persistenceDataIn);
+    TouchHandler(int dataPin_In, Persistence *persistenceDataIn);
+    void init();
     void loopHandler();
     int getRAW();
-    void setThreshold(int threshold);
+    int getTouchThreshold();
 private:
     int dataPin;
     uint16_t touchThreshold;
@@ -25,6 +26,7 @@ private:
     void pushToPersistence();
     void syncInterrupt();
     void resetInterrupt();
+    void setThreshold(int threshold);
 };
 
 

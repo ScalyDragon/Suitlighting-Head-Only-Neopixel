@@ -26,7 +26,7 @@ private:
     bool smooth;
     int dataPin;
     int pixelcount;
-    int smoothStepwidth;
+    float smoothStepwidth;
     Color* ledTargetStateBuffer;
     Color* ledCurrentStateBuffer;
     void updateLEDStateFromBuffer();

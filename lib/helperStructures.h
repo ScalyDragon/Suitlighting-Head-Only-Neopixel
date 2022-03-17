@@ -5,8 +5,12 @@
 #define FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_HELPERSTRUCTURES_H
 using namespace std;
 
+#include <mutex>
 #include "stdint.h"
 #include "math.h"
+#include "WString.h"
+#include "Print.h"
+#include "stdio.h"
 
 static uint16_t sadd16(uint16_t a, uint16_t b) {
     return (a > 0xFFFF - b) ? 0xFFFF : a + b;
@@ -38,7 +42,8 @@ struct Color {
     Color(float r = 0, float g = 0, float b = 0) : r(r), g(g), b(b) {}
 
     Color normalized() {
-        return Color(r / lengthf(), g / lengthf(), b / lengthf());
+        float length = lengthf();
+        return Color(r / length, g / length, b / length);
     }
 
     Color add(Color toAdd) {
@@ -78,18 +83,35 @@ struct Color {
     Color toInt8() {
         return Color(satf8(r), satf8(g), satf8(b));
     }
+
     Color getColorOfUint32(uint32_t colorRAW) {
         int r = colorRAW >> 16;
         int g = colorRAW >> 8 & 0xff;
         int b = colorRAW & 0xff;
-        return {r,g,b};
+        return {r, g, b};
+    }
+
+    uint32_t getUint32OfColor() {
+        return (fRoundI(r) << 16) + (fRoundI(g) << 8) + fRoundI(b);
+    }
+
+    int fRoundI(float f) {
+        return (int) floorf(f + 0.5f);
+    }
+
+    String toUint8String() {
+        String retStr = "";
+        char buf[6];
+        sprintf(buf, "%02X%02X%02X", fRoundI(r), fRoundI(g), fRoundI(b));
+        retStr += buf;
+        return retStr;
     }
 };
 
-struct Persistence {
+struct Persistence : mutex {
     bool touch, savePersistentToEMMC = false;
-    uint16_t touchThreshold, touchMinVal, touchMaxVal;
-    Color idleColor=Color(0,0,255), boopColor=Color(255,0,0);
+    uint16_t touchThreshold, touchMinVal, touchMaxVal, fadespeed;
+    Color idleColor = Color(0, 0, 255), boopColor = Color(255, 0, 0);
     char *appw = "#Dr4gonG0esR@wr";
     char *ssid = "ScalyTech";
 };

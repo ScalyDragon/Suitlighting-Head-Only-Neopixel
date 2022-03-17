@@ -5,6 +5,7 @@
 #ifndef FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_NEOPIXELANIMATOR_H
 #define FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_NEOPIXELANIMATOR_H
 
+#include <atomic>
 #include "../helperStructures.h"
 #include "../NeoPixelManager/NeoPixelManager.h"
 
@@ -24,6 +25,9 @@ private:
     Color boopColor;
     Color idleColor;
     void updatePersistence();
+    float fadespeed;
+    int touchDebounce = 0;
+    bool touch;
 };
 
 
