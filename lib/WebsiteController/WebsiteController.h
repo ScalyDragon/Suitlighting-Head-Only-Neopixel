@@ -13,7 +13,6 @@ using namespace std;
 #include "SPIFFS.h"
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
-#include "atomic"
 
 class WebsiteController {
 public:
@@ -33,7 +32,8 @@ private:
     uint16_t fadespeed = 10;
     uint16_t sensitivity;
     void updatePersistence();
-    bool saveReq;
+    bool saveReq = false;
+    mutex InterprocessorLock;
 };
 
 

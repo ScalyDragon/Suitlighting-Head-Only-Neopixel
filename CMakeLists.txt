@@ -30,4 +30,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(Z_DUMMY_TARGET ${SRC_LIST} lib/PersistentStorage/PersistentStorage.cpp lib/PersistentStorage/PersistentStorage.h)
+add_executable(Z_DUMMY_TARGET ${SRC_LIST} lib/PersistentStorage/PersistentStorage.cpp lib/PersistentStorage/PersistentStorage.h lib/ButtonHandler/ButtonHandler.cpp lib/ButtonHandler/ButtonHandler.h)

@@ -10,10 +10,12 @@ using namespace std;
 #include "../lib/helperStructures.h"
 #include "../lib/NeopixelAnimator/NeopixelAnimator.h"
 #include "../lib/PersistentStorage/PersistentStorage.h"
+#include "../lib/ButtonHandler/ButtonHandler.h"
 
 
 #define NOSE_BOOP_PIN G12
 #define STRIPDATAPIN G14
+#define BUTTONPIN G23
 #define PIXELCOUNT 300
 
 NeoPixelManager *ledManager;
@@ -22,24 +24,30 @@ NeopixelAnimator *animator;
 WebsiteController *website;
 WifiManager *wifi;
 PersistentStorage *storage;
+ButtonHandler *button;
 
 Persistence persistentData;
 
-void createAllObjects(){
+void createAllObjects() {
     touchHandler = new TouchHandler(NOSE_BOOP_PIN, &persistentData);
     wifi = new WifiManager();
     ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT);
     website = new WebsiteController(&persistentData);
-    animator = new NeopixelAnimator(ledManager,&persistentData);
+    animator = new NeopixelAnimator(ledManager, &persistentData);
     storage = new PersistentStorage(&persistentData);
+    button = new ButtonHandler(&persistentData, BUTTONPIN);
 }
 
-void initAll(){
+void initAll() {
     storage->init();
     touchHandler->init();
     ledManager->init();
-    wifi->init();
-    website->init();
+    button->init();
+    Serial.println(persistentData.configMode);
+    if (persistentData.configMode) {
+        wifi->init();
+        website->init();
+    }
     animator->init();
 }
 
@@ -54,11 +62,15 @@ void loopHandlers() {
     ledManager->loopHandler();
     touchHandler->loopHandler();
     animator->loopHandler();
-    wifi->loopHandler();
-    website->loopHandler();
-    if(persistentData.savePersistentToEMMC)
+    if (persistentData.configMode) {
+        wifi->loopHandler();
+        website->loopHandler();
+    }
+    if (persistentData.savePersistentToEMMC) {
         printCurrentConfig();
+    }
     storage->loopHandler();
+    button->loopHandler();
 }
 
 void setup() {
@@ -71,8 +83,9 @@ void setup() {
     Serial.println("Done!");
     printCurrentConfig();
 }
+
 void loop() {
-    while(true){
+    while (true) {
         loopHandlers();
         delay(1);
     }

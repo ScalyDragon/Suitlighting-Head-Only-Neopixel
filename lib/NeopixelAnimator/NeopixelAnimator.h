@@ -21,10 +21,16 @@ public:
 private:
     NeoPixelManager* ledmanager;
     Persistence* persistentState;
+    void debouncedTouchHandler();
+    void blackout();
+    void updatePersistence();
+    void handleButtonPress();
+    bool activated = true;
+    bool oldButtonState = true;
+    bool buttonState = true;
     Color currentTargetColor;
     Color boopColor;
     Color idleColor;
-    void updatePersistence();
     float fadespeed;
     int touchDebounce = 0;
     bool touch;

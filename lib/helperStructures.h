@@ -109,7 +109,7 @@ struct Color {
 };
 
 struct Persistence : mutex {
-    bool touch, savePersistentToEMMC = false;
+    bool touch, savePersistentToEMMC = false, buttonPressed = false, configMode = true;
     uint16_t touchThreshold, touchMinVal, touchMaxVal, fadespeed;
     Color idleColor = Color(0, 0, 255), boopColor = Color(255, 0, 0);
     char *appw = "#Dr4gonG0esR@wr";

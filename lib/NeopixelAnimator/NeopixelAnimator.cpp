@@ -10,16 +10,34 @@ void NeopixelAnimator::init() {}
 
 void NeopixelAnimator::loopHandler() {
     updatePersistence();
-    if(touch) {
+    handleButtonPress();
+    if (activated)
+        debouncedTouchHandler();
+    else
+        blackout();
+    ledmanager->setSmoothStepwidth(fadespeed / 10.0f);
+}
+
+void NeopixelAnimator::handleButtonPress() {
+    if (!oldButtonState && buttonState)
+        activated = !activated;
+    oldButtonState = buttonState;
+}
+
+void NeopixelAnimator::blackout() {
+    ledmanager->setSmooth(true);
+    ledmanager->setPixelArea(0, STRIPLENGTH, Color(0, 0, 0));
+}
+
+void NeopixelAnimator::debouncedTouchHandler() {
+    if (touch) {
         ledmanager->setPixelArea(0, STRIPLENGTH, boopColor);
         ledmanager->setSmooth(false);
         touchDebounce = 10;
-    }
-    else if (touchDebounce == 0){
+    } else if (touchDebounce == 0) {
         ledmanager->setPixelArea(0, STRIPLENGTH, idleColor);
         ledmanager->setSmooth(true);
     } else touchDebounce--;
-    ledmanager->setSmoothStepwidth(fadespeed/10.0f);
 }
 
 void NeopixelAnimator::updatePersistence() {
@@ -28,6 +46,7 @@ void NeopixelAnimator::updatePersistence() {
     idleColor.setColor(persistentState->idleColor);
     fadespeed = persistentState->fadespeed;
     touch = persistentState->touch;
+    buttonState = persistentState->buttonPressed;
     persistentState->unlock();
 }
 
