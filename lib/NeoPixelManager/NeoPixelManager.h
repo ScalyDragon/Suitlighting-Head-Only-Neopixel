@@ -12,18 +12,19 @@ using namespace std;
 
 class NeoPixelManager {
 public:
-    NeoPixelManager(int dataPin, int pixelCount);
+    NeoPixelManager(int dataPin, int pixelCount, int looprateHz);
     void init();
     void loopHandler();
     void setPixelArea(int start, int end, Color color);
-    void setSmooth(bool smooth);
+    void setMode(int mode);
     void setSmoothStepwidth(float stepwidth);
+    void setColorWait(float waitTimeSeconds); //NOTEST
     Color getColorOfUint32(uint32_t colorRAW);
     Color* getCurrentColorBuffer();
     Color* getTargetColorBuffer();
 private:
     Adafruit_NeoPixel* pixels;
-    bool smooth;
+    int mode; //0 = INSTANT, 1 = SMOOTH, 2 = WAIT
     int dataPin;
     int pixelcount;
     float smoothStepwidth;
@@ -32,6 +33,8 @@ private:
     void updateLEDStateFromBuffer();
     void updateBufferWithStepwidth(float stepwidth);
     void updateNeopixelsFromBuffer();
+    int colorWaitTimeRemain;
+    int loopRateHz;
 };
 
 

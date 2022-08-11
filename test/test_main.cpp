@@ -169,7 +169,7 @@ void test_Persistance_ssub32(void) {
 }
 
 void test_NeoPixelManager_objectCreation(void) {
-    ledManager = new NeoPixelManager(NEOPIXELPIN, PIXELCOUNT);
+    ledManager = new NeoPixelManager(NEOPIXELPIN, PIXELCOUNT,1000);
 }
 
 void test_NeoPixelManager_init(void) {
@@ -177,7 +177,7 @@ void test_NeoPixelManager_init(void) {
 }
 
 void test_NeoPixelManager_setPixel1to10(void) {
-    ledManager->setSmooth(false);
+    ledManager->setMode(0);
     ledManager->setPixelArea(0, 5, blue);
     ledManager->loopHandler();
     isColorEqual(blue, ledManager->getCurrentColorBuffer()[0]);
@@ -209,7 +209,7 @@ void test_NeoPixelManager_getTargetBufferValid(void) {
 }
 
 void test_NeoPixelManager_setArea(void) {
-    ledManager->setSmooth(false);
+    ledManager->setMode(0);
     ledManager->setSmoothStepwidth(1.0f);
     ledManager->setPixelArea(0, 10, Color(0, 0, 0));
     ledManager->loopHandler();
@@ -221,10 +221,10 @@ void test_NeoPixelManager_setArea(void) {
 }
 
 void test_NeoPixelManager_fadeIn(void) {
-    ledManager->setSmooth(false);
+    ledManager->setMode(0);
     ledManager->setPixelArea(0, 10, Color(0, 0, 0));
     ledManager->loopHandler();
-    ledManager->setSmooth(true);
+    ledManager->setMode(1);
     ledManager->setSmoothStepwidth(1);
     ledManager->setPixelArea(0, 10, Color(0, 0, 100));
     isColorAreaEqual(ledManager->getCurrentColorBuffer(), Color(0, 0, 0), 0, 10);
@@ -236,10 +236,10 @@ void test_NeoPixelManager_fadeIn(void) {
 }
 
 void test_NeoPixelManager_slowFadeIn(void) {
-    ledManager->setSmooth(false);
+    ledManager->setMode(0);
     ledManager->setPixelArea(0, 10, Color(0, 0, 0));
     ledManager->loopHandler();
-    ledManager->setSmooth(true);
+    ledManager->setMode(1);
     ledManager->setSmoothStepwidth(0.5f);
     ledManager->setPixelArea(0, 10, Color(0, 0, 100));
     isColorAreaEqual(ledManager->getCurrentColorBuffer(), Color(0, 0, 0), 0, 10);

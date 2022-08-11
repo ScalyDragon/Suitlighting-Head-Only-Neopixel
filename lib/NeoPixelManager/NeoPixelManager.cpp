@@ -5,13 +5,14 @@
 #include "NeoPixelManager.h"
 
 
-NeoPixelManager::NeoPixelManager(int dataPinIn, int pixelcountIn) {
+NeoPixelManager::NeoPixelManager(int dataPinIn, int pixelcountIn, int loopRateHzIn) {
     dataPin = dataPinIn;
     pixelcount = pixelcountIn;
+    loopRateHz = loopRateHzIn;
     pixels = new Adafruit_NeoPixel(pixelcount, dataPin, NEO_GRB + NEO_KHZ800);
     ledTargetStateBuffer = new Color[pixelcount]();
     ledCurrentStateBuffer = new Color[pixelcount]();
-    smooth = false;
+    mode = 0;
     smoothStepwidth = 1;
 }
 
@@ -37,10 +38,21 @@ void NeoPixelManager::updateNeopixelsFromBuffer() {
 }
 
 void NeoPixelManager::updateLEDStateFromBuffer() {
-    if (smooth)
-        updateBufferWithStepwidth(smoothStepwidth);
-    else
+    switch (mode)
+    {
+    case 0:
         updateBufferWithStepwidth(0xFFFF);
+        break;
+    case 1:
+        updateBufferWithStepwidth(smoothStepwidth);
+        break;
+    case 2:
+        if(--colorWaitTimeRemain <= 0)
+            updateBufferWithStepwidth(0xFFFF);
+        break;
+    default:
+        break;
+    }
 }
 
 void NeoPixelManager::updateBufferWithStepwidth(float stepwidth) {
@@ -69,8 +81,12 @@ void NeoPixelManager::setPixelArea(int start, int end, Color color) {
     }
 }
 
-void NeoPixelManager::setSmooth(bool smoothIn) {
-    smooth = smoothIn;
+void NeoPixelManager::setColorWait(float waitTimeSeconds){
+    colorWaitTimeRemain = roundl(waitTimeSeconds * loopRateHz);
+}
+
+void NeoPixelManager::setMode(int modeIn) {
+    mode = modeIn;
 }
 
 void NeoPixelManager::setSmoothStepwidth(float stepwidthIn) {
