@@ -31,7 +31,7 @@ Persistence persistentData;
 void createAllObjects() {
     touchHandler = new TouchHandler(NOSE_BOOP_PIN, &persistentData);
     wifi = new WifiManager();
-    ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT);
+    ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT,1000);
     website = new WebsiteController(&persistentData);
     animator = new NeopixelAnimator(ledManager, &persistentData);
     storage = new PersistentStorage(&persistentData);

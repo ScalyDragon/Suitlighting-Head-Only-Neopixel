@@ -6,7 +6,9 @@
 
 #define STRIPLENGTH 32
 
-void NeopixelAnimator::init() {}
+void NeopixelAnimator::init() {
+    ledmanager->setSmoothStepwidth(1.0f);
+}
 
 void NeopixelAnimator::loopHandler() {
     updatePersistence();
@@ -15,7 +17,7 @@ void NeopixelAnimator::loopHandler() {
         debouncedTouchHandler();
     else
         blackout();
-    ledmanager->setSmoothStepwidth(fadespeed / 10.0f);
+    
 }
 
 void NeopixelAnimator::handleButtonPress() {
@@ -25,18 +27,21 @@ void NeopixelAnimator::handleButtonPress() {
 }
 
 void NeopixelAnimator::blackout() {
-    ledmanager->setSmooth(true);
+    ledmanager->setSmoothStepwidth(1.0f);
+    ledmanager->setMode(1);
     ledmanager->setPixelArea(0, STRIPLENGTH, Color(0, 0, 0));
 }
 
 void NeopixelAnimator::debouncedTouchHandler() {
     if (touch) {
         ledmanager->setPixelArea(0, STRIPLENGTH, boopColor);
-        ledmanager->setSmooth(false);
+        ledmanager->setMode(0);
+        ledmanager->setColorWait(fadespeed);
+        ledmanager->setSmoothStepwidth(fadespeed / 10.0f);
         touchDebounce = 10;
     } else if (touchDebounce == 0) {
         ledmanager->setPixelArea(0, STRIPLENGTH, idleColor);
-        ledmanager->setSmooth(true);
+        ledmanager->setMode(2);
     } else touchDebounce--;
 }
 
