@@ -42,6 +42,10 @@ void PersistentStorage::updatePersistenceFromMemory() {
     persistentData->boopColor.setColor(readColor(COLOR2_ADDR));
     persistentData->touchThreshold = EEPROM.read(TOUCHTHRESHOLD_ADDR);
     persistentData->fadespeed = EEPROM.read(FADESPEED_ADDR);
+    persistentData->fanspeed = EEPROM.read(FANSPEED_ADDR);
+    if (persistentData->fanspeed > 100) {
+        persistentData->fanspeed = 100;
+    }
     persistentData->savePersistentToEMMC = false;
     persistentData->unlock();
 }
@@ -52,6 +56,7 @@ void PersistentStorage::savePersistenceToMemory() {
     saveColor(COLOR2_ADDR, persistentData->boopColor);
     EEPROM.write(TOUCHTHRESHOLD_ADDR, persistentData->touchThreshold);
     EEPROM.write(FADESPEED_ADDR, persistentData->fadespeed);
+    EEPROM.write(FANSPEED_ADDR, persistentData->fanspeed);
     EEPROM.commit();
     persistentData->unlock();
 }

@@ -7,11 +7,11 @@
 
 #include <atomic>
 #include "../helperStructures.h"
-#include "../NeoPixelManager/NeoPixelManager.h"
+#include "../LEDStrip/LEDStrip.h"
 
 class NeopixelAnimator {
 public:
-    NeopixelAnimator(NeoPixelManager *ledmanager, Persistence *persistentState);
+    NeopixelAnimator(LEDStrip *ledmanager, Persistence *persistentState);
 
     void init();
     void loopHandler();
@@ -19,7 +19,7 @@ public:
     void setBoopColor(Color boopcolor);
     void setIdleColor(Color idlecolor);
 private:
-    NeoPixelManager* ledmanager;
+    LEDStrip* ledmanager;
     Persistence* persistentState;
     void debouncedTouchHandler();
     void blackout();

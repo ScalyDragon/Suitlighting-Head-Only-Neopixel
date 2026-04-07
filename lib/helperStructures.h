@@ -85,9 +85,9 @@ struct Color {
     }
 
     Color getColorOfUint32(uint32_t colorRAW) {
-        int r = colorRAW >> 16;
-        int g = colorRAW >> 8 & 0xff;
-        int b = colorRAW & 0xff;
+        float r = colorRAW >> 16;
+        float g = colorRAW >> 8 & 0xff;
+        float b = colorRAW & 0xff;
         return {r, g, b};
     }
 
@@ -100,20 +100,20 @@ struct Color {
     }
 
     String toUint8String() {
-        String retStr = "";
-        char buf[6];
-        sprintf(buf, "%02X%02X%02X", fRoundI(r), fRoundI(g), fRoundI(b));
-        retStr += buf;
-        return retStr;
+        char buf[7];
+        snprintf(buf, sizeof(buf), "%02X%02X%02X", fRoundI(r), fRoundI(g), fRoundI(b));
+        return String(buf);
     }
 };
 
 struct Persistence : mutex {
     bool touch, savePersistentToEMMC = false, buttonPressed = false, configMode = true;
     uint16_t touchThreshold, touchMinVal, touchMaxVal, fadespeed;
+    uint8_t fanspeed = 0;
+    uint32_t fanRPM = 0;
     Color idleColor = Color(0, 0, 255), boopColor = Color(255, 0, 0);
-    char *appw = "#Dr4gonG0esR@wr";
-    char *ssid = "ScalyTech";
+    const char *appw = "#Dr4gonG0esR@wr";
+    const char *ssid = "ScalyTech";
 };
 
 #endif //FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_HELPERSTRUCTURES_H

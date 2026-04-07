@@ -31,6 +31,7 @@ private:
     long boopColor = 0xFF0000;
     uint16_t fadespeed = 10;
     uint16_t sensitivity;
+    uint8_t fanspeed = 0;
     void updatePersistence();
     bool saveReq = false;
     mutex InterprocessorLock;

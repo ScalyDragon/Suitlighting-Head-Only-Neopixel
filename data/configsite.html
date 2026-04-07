@@ -24,6 +24,16 @@
 </div>
 <input type="text" placeholder="---" id="sensitivityDisplay" onchange="updateSensitivityDisplay()">
 <label>weniger------mehr</label>
+<br>
+<br>
+<label for="fanspeedslider">Fanspeed</label>
+<div class="fanspeedslider">
+    <input type="range" min="0" max="100" value="0" class="slider" id="fanspeedslider" onchange="updateFanSpeedSlider(this)">
+</div>
+<input type="text" placeholder="---" id="fanspeedDisplay" onchange="updateFanSpeedDisplay()">
+<label>0%------100%</label>
+<br>
+<label>Fan RPM: <span id="fanrpmDisplay">0</span></label>
 </body>
 <script>
     function updateDimSpeedSlider() {
@@ -54,6 +64,28 @@
         var sens = document.getElementById("sensitivityslider").value;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/sensitivity?value=" + sens, true);
+        xhr.send();
+    }
+
+    function updateFanSpeedSlider() {
+        var fanspeed = document.getElementById("fanspeedslider").value;
+        document.getElementById("fanspeedDisplay").value = fanspeed;
+        updateFanSpeed();
+    }
+
+    function updateFanSpeedDisplay() {
+        var fanspeed = document.getElementById("fanspeedDisplay").value;
+        if (fanspeed < 0) fanspeed = 0;
+        if (fanspeed > 100) fanspeed = 100;
+        document.getElementById("fanspeedslider").value = fanspeed;
+        document.getElementById("fanspeedDisplay").value = fanspeed;
+        updateFanSpeed();
+    }
+
+    function updateFanSpeed() {
+        var fanspeed = document.getElementById("fanspeedslider").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/fanspeed?value=" + fanspeed, true);
         xhr.send();
     }
 
@@ -91,6 +123,9 @@
                 document.getElementById("dimspeedDisplay").value = obj.fadespeed / 10;
                 document.getElementById("sensitivityslider").value = obj.sensitivity;
                 document.getElementById("sensitivityDisplay").value = obj.sensitivity;
+                document.getElementById("fanspeedslider").value = obj.fanspeed;
+                document.getElementById("fanspeedDisplay").value = obj.fanspeed;
+                document.getElementById("fanrpmDisplay").textContent = obj.fanrpm;
             }
         }
         xhr.open("GET", "/update", true);
@@ -98,5 +133,6 @@
     }
 
     window.onload = getUpdate;
+    window.setInterval(getUpdate, 1000);
 </script>
 </html>

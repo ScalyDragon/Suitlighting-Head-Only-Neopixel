@@ -73,4 +73,5 @@ void NeopixelAnimator::setIdleColor(Color idlecolorIn) {
     persistentState->unlock();
 }
 
-NeopixelAnimator::NeopixelAnimator(NeoPixelManager *ledmanager, Persistence *persistentState) : ledmanager(ledmanager), persistentState(persistentState) {}
+NeopixelAnimator::NeopixelAnimator(LEDStrip *ledmanager, Persistence *persistentState)
+        : ledmanager(ledmanager), persistentState(persistentState) {}

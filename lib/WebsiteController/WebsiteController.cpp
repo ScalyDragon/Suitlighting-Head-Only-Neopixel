@@ -16,6 +16,7 @@ void WebsiteController::init() {
     boopColor = persistentData->boopColor.getUint32OfColor();
     sensitivity = persistentData->touchThreshold;
     fadespeed = persistentData->fadespeed;
+    fanspeed = persistentData->fanspeed;
     persistentData->unlock();
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/configsite.html");
@@ -62,10 +63,26 @@ void WebsiteController::init() {
             request->send(200);
         }
     });
+    server->on("/fanspeed",HTTP_GET,[this](AsyncWebServerRequest *request){
+        if(request->hasParam("value")) {
+            String receivedMessage = request->getParam("value")->value();
+            int requestedFanspeed = strtol(receivedMessage.c_str(), NULL, 10);
+            if (requestedFanspeed < 0) {
+                requestedFanspeed = 0;
+            } else if (requestedFanspeed > 100) {
+                requestedFanspeed = 100;
+            }
+            InterprocessorLock.lock();
+            fanspeed = requestedFanspeed;
+            InterprocessorLock.unlock();
+            saveReq = true;
+            request->send(200);
+        }
+    });
     server->on("/update",HTTP_GET,[this](AsyncWebServerRequest *request){
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         Serial.print('.');
-        DynamicJsonDocument json(1024);
+        JsonDocument json;
         persistentData->lock();
         Serial.print('.');
         String idleColor = persistentData->idleColor.toUint8String();
@@ -79,6 +96,8 @@ void WebsiteController::init() {
         json["fadespeed"] = persistentData->fadespeed;
         Serial.print('.');
         json["sensitivity"] = persistentData->touchThreshold;
+        json["fanspeed"] = persistentData->fanspeed;
+        json["fanrpm"] = persistentData->fanRPM;
         Serial.print('.');
         persistentData->unlock();
         serializeJson(json, *response);
@@ -94,6 +113,7 @@ void WebsiteController::updatePersistence() {
     persistentData->boopColor.setColor(persistentData->boopColor.getColorOfUint32(boopColor));
     persistentData->fadespeed = fadespeed;
     persistentData->touchThreshold = sensitivity;
+    persistentData->fanspeed = fanspeed;
     if(saveReq) {
         persistentData->savePersistentToEMMC = true;
         saveReq = false;

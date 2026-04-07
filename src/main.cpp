@@ -3,9 +3,12 @@ using namespace std;
 #include <Arduino.h>
 #include <WebsiteController.h>
 #include <WifiManager.h>
-#include "../lib/AZDeliveryESP32_pinMapping.h"
+#include "../lib/BoardPinMapping.h"
 
+#include "../lib/FanController/FanController.h"
+#include "../lib/LEDStrip/LEDStrip.h"
 #include "../lib/NeoPixelManager/NeoPixelManager.h"
+#include "../lib/RGBStripManager/RGBStripManager.h"
 #include "../lib/TouchHandler/TouchHandler.h"
 #include "../lib/helperStructures.h"
 #include "../lib/NeopixelAnimator/NeopixelAnimator.h"
@@ -13,29 +16,37 @@ using namespace std;
 #include "../lib/ButtonHandler/ButtonHandler.h"
 
 
-#define NOSE_BOOP_PIN G12
+#define NOSE_BOOP_PIN IO4
 #define STRIPDATAPIN G14
-#define BUTTONPIN G23
+#define LED_GREEN_PIN IO17
+#define LED_RED_PIN IO16
+#define LED_BLUE_PIN IO21
+#define BUTTONPIN IO27
+#define FAN_PWM_PIN IO19
+#define FAN_TACH_PIN IO18
 #define PIXELCOUNT 300
 
-NeoPixelManager *ledManager;
+LEDStrip *ledManager;
 TouchHandler *touchHandler;
 NeopixelAnimator *animator;
 WebsiteController *website;
 WifiManager *wifi;
 PersistentStorage *storage;
 ButtonHandler *button;
+FanController *fan;
 
 Persistence persistentData;
 
 void createAllObjects() {
     touchHandler = new TouchHandler(NOSE_BOOP_PIN, &persistentData);
     wifi = new WifiManager();
-    ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT,1000);
+    //ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT,1000);
+    ledManager = new RGBStripManager(LED_RED_PIN,LED_GREEN_PIN,LED_BLUE_PIN,5000,true);
     website = new WebsiteController(&persistentData);
     animator = new NeopixelAnimator(ledManager, &persistentData);
     storage = new PersistentStorage(&persistentData);
     button = new ButtonHandler(&persistentData, BUTTONPIN);
+    fan = FAN_PWM_PIN >= 0 ? new FanController(&persistentData, FAN_PWM_PIN, FAN_TACH_PIN) : nullptr;
 }
 
 void initAll() {
@@ -43,6 +54,9 @@ void initAll() {
     touchHandler->init();
     ledManager->init();
     button->init();
+    if (fan != nullptr) {
+        fan->init();
+    }
     Serial.println(persistentData.configMode);
     if (persistentData.configMode) {
         wifi->init();
@@ -56,12 +70,16 @@ void printCurrentConfig() {
     Serial.println(persistentData.boopColor.toUint8String());
     Serial.println(persistentData.touchThreshold);
     Serial.println(persistentData.fadespeed);
+    Serial.println(persistentData.fanspeed);
 }
 
 void loopHandlers() {
     ledManager->loopHandler();
     touchHandler->loopHandler();
     animator->loopHandler();
+    if (fan != nullptr) {
+        fan->loopHandler();
+    }
     if (persistentData.configMode) {
         wifi->loopHandler();
         website->loopHandler();

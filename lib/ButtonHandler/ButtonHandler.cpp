@@ -12,6 +12,8 @@ ButtonHandler::ButtonHandler(Persistence *persistenceIn, int pinNumber) {
 void ButtonHandler::init() {
     pinMode(switchPin, INPUT_PULLUP);
     configModeActive = !digitalRead(switchPin);
+    Serial.print("CONFIGMODE: ");
+    Serial.print(configModeActive);
     refreshPersistence();
 }
 
