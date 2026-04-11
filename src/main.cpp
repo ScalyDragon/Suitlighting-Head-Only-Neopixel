@@ -3,6 +3,7 @@ using namespace std;
 #include <Arduino.h>
 #include <WebsiteController.h>
 #include <WifiManager.h>
+#include "../lib/DmxManager/DmxManager.h"
 #include "../lib/BoardPinMapping.h"
 
 #include "../lib/FanController/FanController.h"
@@ -31,6 +32,7 @@ TouchHandler *touchHandler;
 NeopixelAnimator *animator;
 WebsiteController *website;
 WifiManager *wifi;
+DmxManager *dmx;
 PersistentStorage *storage;
 ButtonHandler *button;
 FanController *fan;
@@ -39,7 +41,8 @@ Persistence persistentData;
 
 void createAllObjects() {
     touchHandler = new TouchHandler(NOSE_BOOP_PIN, &persistentData);
-    wifi = new WifiManager();
+    wifi = new WifiManager(&persistentData);
+    dmx = new DmxManager(&persistentData);
     //ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT,1000);
     ledManager = new RGBStripManager(LED_RED_PIN,LED_GREEN_PIN,LED_BLUE_PIN,5000,true);
     website = new WebsiteController(&persistentData);
@@ -58,8 +61,9 @@ void initAll() {
         fan->init();
     }
     Serial.println(persistentData.configMode);
+    wifi->init();
+    dmx->init();
     if (persistentData.configMode) {
-        wifi->init();
         website->init();
     }
     animator->init();
@@ -80,8 +84,9 @@ void loopHandlers() {
     if (fan != nullptr) {
         fan->loopHandler();
     }
+    wifi->loopHandler();
+    dmx->loopHandler();
     if (persistentData.configMode) {
-        wifi->loopHandler();
         website->loopHandler();
     }
     if (persistentData.savePersistentToEMMC) {
