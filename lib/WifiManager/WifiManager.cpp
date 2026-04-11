@@ -3,13 +3,14 @@
 //
 
 #include "WifiManager.h"
-WifiManager::WifiManager() {
 
+WifiManager::WifiManager(Persistence *persistentDataIn) {
+    persistentData = persistentDataIn;
 }
 
 void WifiManager::init() {
     WiFi.mode(WIFI_MODE_AP);
-    WiFi.softAP(persistentData.ssid,persistentData.appw);
+    WiFi.softAP(persistentData->ssid, persistentData->appw);
 }
 
 void WifiManager::loopHandler() {

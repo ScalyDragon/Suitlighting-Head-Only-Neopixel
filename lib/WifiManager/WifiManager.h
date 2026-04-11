@@ -10,11 +10,12 @@
 
 class WifiManager {
 public:
-    WifiManager();
+    explicit WifiManager(Persistence *persistentDataIn);
     void init();
     void loopHandler();
+
 private:
-    Persistence persistentData;
+    Persistence *persistentData;
 };
 
 
