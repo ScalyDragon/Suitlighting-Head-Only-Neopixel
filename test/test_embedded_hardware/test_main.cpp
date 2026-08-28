@@ -50,6 +50,7 @@ void test_TouchHandler_thresholdPersistenceUpdated(void) {
 }
 
 void test_TouchHandler_noTouchDetected(void) {
+    persistentData.adaptiveTouch = false;
     persistentData.touchThreshold = 10;
     touchHandler->loopHandler();
     delay(100);
@@ -58,6 +59,7 @@ void test_TouchHandler_noTouchDetected(void) {
 }
 
 void test_TouchHandler_touchDetected(void) {
+    persistentData.adaptiveTouch = false;
     persistentData.touchThreshold = 1000;
     touchHandler->loopHandler();
     delay(100);
@@ -346,6 +348,7 @@ void test_PersistentStorage_savePersistenceToMemory(void) {
     persistentData.boopColor.setColor(Color(0, 0, 255));
     persistentData.touchThreshold = 123;
     persistentData.fadespeed = 124;
+    persistentData.adaptiveTouch = false;
     storage->savePersistenceToMemory();
 }
 
@@ -354,11 +357,13 @@ void test_PersistentStorage_updatePersistenceFromMemory(void) {
     persistentData.boopColor.setColor(Color(255,0,0));
     persistentData.touchThreshold = 1;
     persistentData.fadespeed = 2;
+    persistentData.adaptiveTouch = true;
     storage->updatePersistenceFromMemory();
     isColorEqual(Color(0, 255, 0), persistentData.idleColor);
     isColorEqual(Color(0, 0, 255), persistentData.boopColor);
     TEST_ASSERT_EQUAL(123, persistentData.touchThreshold);
     TEST_ASSERT_EQUAL(124, persistentData.fadespeed);
+    TEST_ASSERT_FALSE(persistentData.adaptiveTouch);
 }
 
 void test_PersistentStorage_lockRelease(void){

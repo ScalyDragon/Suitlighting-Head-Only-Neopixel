@@ -32,6 +32,7 @@ private:
     uint16_t fadespeed = 10;
     uint16_t sensitivity;
     uint8_t fanspeed = 0;
+    bool adaptiveTouch = true;
     void updatePersistence();
     bool saveReq = false;
     mutex InterprocessorLock;

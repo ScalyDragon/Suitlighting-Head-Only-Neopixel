@@ -41,7 +41,7 @@ void createAllObjects() {
     touchHandler = new TouchHandler(NOSE_BOOP_PIN, &persistentData);
     wifi = new WifiManager();
     //ledManager = new NeoPixelManager(STRIPDATAPIN, PIXELCOUNT,1000);
-    ledManager = new RGBStripManager(LED_RED_PIN,LED_GREEN_PIN,LED_BLUE_PIN,5000,true);
+    ledManager = new RGBStripManager(LED_RED_PIN,LED_GREEN_PIN,LED_BLUE_PIN,1000,true);
     website = new WebsiteController(&persistentData);
     animator = new NeopixelAnimator(ledManager, &persistentData);
     storage = new PersistentStorage(&persistentData);
@@ -58,6 +58,7 @@ void initAll() {
         fan->init();
     }
     Serial.println(persistentData.configMode);
+    persistentData.configMode=true;
     if (persistentData.configMode) {
         wifi->init();
         website->init();
@@ -71,6 +72,11 @@ void printCurrentConfig() {
     Serial.println(persistentData.touchThreshold);
     Serial.println(persistentData.fadespeed);
     Serial.println(persistentData.fanspeed);
+    //DEBUG
+    Serial.println(ledManager->getCurrentColorBuffer()->toUint8String());
+    Serial.println(ledManager->getTargetColorBuffer()->toUint8String());
+    Serial.println(touchHandler->getRAW());
+    Serial.println(persistentData.touch);
 }
 
 void loopHandlers() {
@@ -80,6 +86,7 @@ void loopHandlers() {
     if (fan != nullptr) {
         fan->loopHandler();
     }
+    persistentData.configMode = true;
     if (persistentData.configMode) {
         wifi->loopHandler();
         website->loopHandler();

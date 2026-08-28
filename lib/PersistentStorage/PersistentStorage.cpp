@@ -43,6 +43,7 @@ void PersistentStorage::updatePersistenceFromMemory() {
     persistentData->touchThreshold = EEPROM.read(TOUCHTHRESHOLD_ADDR);
     persistentData->fadespeed = EEPROM.read(FADESPEED_ADDR);
     persistentData->fanspeed = EEPROM.read(FANSPEED_ADDR);
+    persistentData->adaptiveTouch = EEPROM.read(ADAPTIVE_TOUCH_ADDR) != 0;
     if (persistentData->fanspeed > 100) {
         persistentData->fanspeed = 100;
     }
@@ -57,6 +58,7 @@ void PersistentStorage::savePersistenceToMemory() {
     EEPROM.write(TOUCHTHRESHOLD_ADDR, persistentData->touchThreshold);
     EEPROM.write(FADESPEED_ADDR, persistentData->fadespeed);
     EEPROM.write(FANSPEED_ADDR, persistentData->fanspeed);
+    EEPROM.write(ADAPTIVE_TOUCH_ADDR, persistentData->adaptiveTouch ? 1 : 0);
     EEPROM.commit();
     persistentData->unlock();
 }

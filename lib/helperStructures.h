@@ -107,13 +107,14 @@ struct Color {
 };
 
 struct Persistence : mutex {
-    bool touch, savePersistentToEMMC = false, buttonPressed = false, configMode = true;
+    bool touch = false, adaptiveTouch = true, savePersistentToEMMC = false, buttonPressed = false, configMode = true;
     uint16_t touchThreshold, touchMinVal, touchMaxVal, fadespeed;
+    uint16_t touchRawValue = 0, touchEffectiveThreshold = 0;
     uint8_t fanspeed = 0;
     uint32_t fanRPM = 0;
     Color idleColor = Color(0, 0, 255), boopColor = Color(255, 0, 0);
     const char *appw = "#Dr4gonG0esR@wr";
-    const char *ssid = "ScalyTech";
+    const char *ssid = "SoturSuit";
 };
 
 #endif //FURSUITAUGEN_NEOPIXEL_BOOPABLE_NOSE_HELPERSTRUCTURES_H

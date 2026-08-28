@@ -36,12 +36,12 @@ void NeopixelAnimator::debouncedTouchHandler() {
     if (touch) {
         ledmanager->setPixelArea(0, STRIPLENGTH, boopColor);
         ledmanager->setMode(0);
-        ledmanager->setColorWait(fadespeed);
-        ledmanager->setSmoothStepwidth(fadespeed / 10.0f);
+        ledmanager->setColorWait(fadespeed/10.0f);
+        ledmanager->setSmoothStepwidth(10.0f/fadespeed); //Looprate 1KHz 
         touchDebounce = 10;
     } else if (touchDebounce == 0) {
         ledmanager->setPixelArea(0, STRIPLENGTH, idleColor);
-        ledmanager->setMode(2);
+        ledmanager->setMode(1);
     } else touchDebounce--;
 }
 

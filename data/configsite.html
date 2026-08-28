@@ -1,40 +1,460 @@
 <!DOCTYPE html>
-<html>
-<body>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c0c0e">
+<title>Sotur Suit Lighting</title>
+<style>
+    :root {
+        color-scheme: dark;
+        --background: #0c0c0e;
+        --surface: #161619;
+        --surface-raised: #1d1d21;
+        --border: #343439;
+        --text: #f4f1eb;
+        --muted: #aaa7a1;
+        --red: #e53935;
+        --red-dark: #a92322;
+        --yellow: #f6c945;
+    }
 
-<h1>Fursuit Konfigurationsseite</h1>
-<label for="idlecolor">Idle-Farbe:</label>
-<input type="color" id="idlecolor" name="idlecolor" value="#ff0000" onchange="updateIdleColor(this)">
-<br>
-<label for="boopcolor">Boop-Farbe:</label>
-<input type="color" id="boopcolor" name="boopcolor" value="#0000ff" onchange="updateBoopColor(this)">
-<br>
-<br>
-<label for="dimspeedslider">Geschwindigkeit Fade</label>
-<div class="dimspeedslider">
-    <input type="range" min="0" max="100" value="3" class="slider" id="dimspeedslider" onchange="updateDimSpeedSlider(this)">
-</div>
-<input type="text" placeholder="---" id="dimspeedDisplay" onchange="updateDimSpeedBox()">
-<label>langsamer------schneller</label>
-<br>
-<br>
-<label for="sensitivityslider">Empfindlichkeit</label>
-<div class="sensitivityslider">
-    <input type="range" min="0" max="255" value="3" class="slider" id="sensitivityslider" onchange="updateSensitivitySlider(this)">
-</div>
-<input type="text" placeholder="---" id="sensitivityDisplay" onchange="updateSensitivityDisplay()">
-<label>weniger------mehr</label>
-<br>
-<br>
-<label for="fanspeedslider">Fanspeed</label>
-<div class="fanspeedslider">
-    <input type="range" min="0" max="100" value="0" class="slider" id="fanspeedslider" onchange="updateFanSpeedSlider(this)">
-</div>
-<input type="text" placeholder="---" id="fanspeedDisplay" onchange="updateFanSpeedDisplay()">
-<label>0%------100%</label>
-<br>
-<label>Fan RPM: <span id="fanrpmDisplay">0</span></label>
-</body>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        background: var(--background);
+    }
+
+    body {
+        min-width: 280px;
+        min-height: 100vh;
+        margin: 0;
+        background: var(--background);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .site-header {
+        border-bottom: 1px solid var(--border);
+        background: #111113;
+    }
+
+    .header-inner,
+    main {
+        width: min(100% - 32px, 820px);
+        margin: 0 auto;
+    }
+
+    .header-inner {
+        min-height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .brand-lockup {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .brand-bars {
+        width: 8px;
+        height: 42px;
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 4px;
+    }
+
+    .brand-bars span:first-child {
+        background: var(--red);
+    }
+
+    .brand-bars span:last-child {
+        background: var(--yellow);
+    }
+
+    .eyebrow,
+    .controller-label,
+    .section-number {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: uppercase;
+    }
+
+    h1 {
+        margin: 1px 0 0;
+        font-size: 27px;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .controller-label {
+        padding-left: 12px;
+        border-left: 3px solid var(--red);
+        color: var(--yellow);
+        white-space: nowrap;
+    }
+
+    main {
+        padding: 10px 0 36px;
+    }
+
+    .config-section {
+        padding: 28px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .config-section:last-child {
+        border-bottom: 0;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .section-number {
+        color: var(--yellow);
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: 0;
+    }
+
+    .color-grid,
+    .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .color-grid {
+        margin-bottom: 24px;
+    }
+
+    .color-control {
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+    }
+
+    label,
+    .control-title {
+        font-weight: 650;
+    }
+
+    input,
+    button {
+        font: inherit;
+    }
+
+    input[type="color"] {
+        width: 52px;
+        height: 36px;
+        flex: 0 0 52px;
+        padding: 3px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--surface-raised);
+        cursor: pointer;
+    }
+
+    .control-group + .control-group {
+        margin-top: 24px;
+    }
+
+    .control-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 10px;
+    }
+
+    .value-field {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--muted);
+    }
+
+    input[type="number"],
+    input[type="text"] {
+        width: 88px;
+        height: 38px;
+        padding: 0 10px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        outline: none;
+        background: #101012;
+        color: var(--text);
+        text-align: right;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    input[type="color"]:focus-visible,
+    input[type="checkbox"]:focus-visible,
+    input[type="range"]:focus-visible {
+        outline: 2px solid var(--yellow);
+        outline-offset: 2px;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        height: 24px;
+        margin: 0;
+        background: transparent;
+        accent-color: var(--red);
+        cursor: pointer;
+        -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--surface-raised);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+        margin-top: -6px;
+        border: 2px solid #111113;
+        border-radius: 50%;
+        background: var(--red);
+        -webkit-appearance: none;
+    }
+
+    input[type="range"]::-moz-range-track {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--surface-raised);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #111113;
+        border-radius: 50%;
+        background: var(--red);
+    }
+
+    .range-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .checkbox-row {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 22px 0 16px;
+        padding: 0 12px;
+        border-left: 3px solid var(--red);
+        background: var(--surface);
+        cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--yellow);
+        cursor: pointer;
+    }
+
+    .metric {
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 13px 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #101012;
+    }
+
+    .metric span:first-child {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .metric strong {
+        color: var(--yellow);
+        font-size: 22px;
+        line-height: 1;
+        letter-spacing: 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .metric-red strong {
+        color: #ff5a56;
+    }
+
+    .fan-metrics {
+        margin-top: 20px;
+    }
+
+    @media (max-width: 520px) {
+        .header-inner,
+        main {
+            width: min(100% - 24px, 820px);
+        }
+
+        .header-inner {
+            min-height: 70px;
+        }
+
+        .controller-label {
+            display: none;
+        }
+
+        .config-section {
+            padding: 24px 0;
+        }
+
+        .color-grid,
+        .metrics {
+            grid-template-columns: 1fr;
+        }
+
+        .control-head {
+            align-items: flex-end;
+        }
+    }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <div class="header-inner">
+        <div class="brand-lockup">
+            <div class="brand-bars" aria-hidden="true"><span></span><span></span></div>
+            <div>
+                <p class="eyebrow">Suit Lighting</p>
+                <h1>Sotur</h1>
+            </div>
+        </div>
+        <span class="controller-label">Head Controller</span>
+    </div>
+</header>
+
+<main>
+    <section class="config-section" aria-labelledby="lightingHeading">
+        <div class="section-heading">
+            <span class="section-number">01</span>
+            <h2 id="lightingHeading">Licht</h2>
+        </div>
+
+        <div class="color-grid">
+            <div class="color-control">
+                <label for="idlecolor">Idle-Farbe</label>
+                <input type="color" id="idlecolor" name="idlecolor" value="#ff0000" onchange="updateIdleColor(this)">
+            </div>
+            <div class="color-control">
+                <label for="boopcolor">Boop-Farbe</label>
+                <input type="color" id="boopcolor" name="boopcolor" value="#0000ff" onchange="updateBoopColor(this)">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="control-head">
+                <label for="dimspeedslider">Fade-Dauer</label>
+                <div class="value-field">
+                    <input type="number" min="0" max="10" step="0.1" placeholder="---" id="dimspeedDisplay" onchange="updateDimSpeedBox()">
+                    <span>s</span>
+                </div>
+            </div>
+            <input type="range" min="0" max="100" value="3" id="dimspeedslider" onchange="updateDimSpeedSlider(this)">
+            <div class="range-labels"><span>0 s</span><span>10 s</span></div>
+        </div>
+    </section>
+
+    <section class="config-section" aria-labelledby="touchHeading">
+        <div class="section-heading">
+            <span class="section-number">02</span>
+            <h2 id="touchHeading">Touch</h2>
+        </div>
+
+        <div class="control-group">
+            <div class="control-head">
+                <label for="sensitivityslider">Empfindlichkeit</label>
+                <div class="value-field">
+                    <input type="number" min="0" max="255" placeholder="---" id="sensitivityDisplay" onchange="updateSensitivityDisplay()">
+                </div>
+            </div>
+            <input type="range" min="0" max="255" value="3" id="sensitivityslider" onchange="updateSensitivitySlider(this)">
+            <div class="range-labels"><span>Weniger</span><span>Mehr</span></div>
+        </div>
+
+        <label class="checkbox-row" for="adaptiveTouchCheckbox">
+            <input type="checkbox" id="adaptiveTouchCheckbox" onchange="updateAdaptiveTouch()" checked>
+            <span>Adaptive Touch-Schwelle</span>
+        </label>
+
+        <div class="metrics">
+            <div class="metric">
+                <span>Touch-Rohwert</span>
+                <strong id="touchValueDisplay">0</strong>
+            </div>
+            <div class="metric metric-red">
+                <span>Aktuelle Schwelle</span>
+                <strong id="touchThresholdDisplay">0</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="config-section" aria-labelledby="fanHeading">
+        <div class="section-heading">
+            <span class="section-number">03</span>
+            <h2 id="fanHeading">Lüfter</h2>
+        </div>
+
+        <div class="control-group">
+            <div class="control-head">
+                <label for="fanspeedslider">Leistung</label>
+                <div class="value-field">
+                    <input type="number" min="0" max="100" placeholder="---" id="fanspeedDisplay" onchange="updateFanSpeedDisplay()">
+                    <span>%</span>
+                </div>
+            </div>
+            <input type="range" min="0" max="100" value="0" id="fanspeedslider" onchange="updateFanSpeedSlider(this)">
+            <div class="range-labels"><span>0 %</span><span>100 %</span></div>
+        </div>
+
+        <div class="metrics fan-metrics">
+            <div class="metric">
+                <span>Fan RPM</span>
+                <strong id="fanrpmDisplay">0</strong>
+            </div>
+        </div>
+    </section>
+</main>
 <script>
     function updateDimSpeedSlider() {
         var dimspeed = document.getElementById("dimspeedslider").value;
@@ -64,6 +484,13 @@
         var sens = document.getElementById("sensitivityslider").value;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/sensitivity?value=" + sens, true);
+        xhr.send();
+    }
+
+    function updateAdaptiveTouch() {
+        var enabled = document.getElementById("adaptiveTouchCheckbox").checked ? 1 : 0;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/adaptivetouch?value=" + enabled, true);
         xhr.send();
     }
 
@@ -123,6 +550,9 @@
                 document.getElementById("dimspeedDisplay").value = obj.fadespeed / 10;
                 document.getElementById("sensitivityslider").value = obj.sensitivity;
                 document.getElementById("sensitivityDisplay").value = obj.sensitivity;
+                document.getElementById("adaptiveTouchCheckbox").checked = obj.adaptivetouch;
+                document.getElementById("touchValueDisplay").textContent = obj.touchvalue;
+                document.getElementById("touchThresholdDisplay").textContent = obj.effectivetouchthreshold;
                 document.getElementById("fanspeedslider").value = obj.fanspeed;
                 document.getElementById("fanspeedDisplay").value = obj.fanspeed;
                 document.getElementById("fanrpmDisplay").textContent = obj.fanrpm;
@@ -135,4 +565,5 @@
     window.onload = getUpdate;
     window.setInterval(getUpdate, 1000);
 </script>
+</body>
 </html>

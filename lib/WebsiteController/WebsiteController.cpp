@@ -17,6 +17,7 @@ void WebsiteController::init() {
     sensitivity = persistentData->touchThreshold;
     fadespeed = persistentData->fadespeed;
     fanspeed = persistentData->fanspeed;
+    adaptiveTouch = persistentData->adaptiveTouch;
     persistentData->unlock();
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/configsite.html");
@@ -56,8 +57,24 @@ void WebsiteController::init() {
     server->on("/sensitivity",HTTP_GET,[this](AsyncWebServerRequest *request){
         if(request->hasParam("value")) {
             String receivedMessage = request->getParam("value")->value();
+            int requestedSensitivity = strtol(receivedMessage.c_str(),NULL,10);
+            if (requestedSensitivity < 0) {
+                requestedSensitivity = 0;
+            } else if (requestedSensitivity > 255) {
+                requestedSensitivity = 255;
+            }
             InterprocessorLock.lock();
-            sensitivity = strtol(receivedMessage.c_str(),NULL,10);
+            sensitivity = requestedSensitivity;
+            InterprocessorLock.unlock();
+            saveReq = true;
+            request->send(200);
+        }
+    });
+    server->on("/adaptivetouch",HTTP_GET,[this](AsyncWebServerRequest *request){
+        if(request->hasParam("value")) {
+            String receivedMessage = request->getParam("value")->value();
+            InterprocessorLock.lock();
+            adaptiveTouch = strtol(receivedMessage.c_str(), NULL, 10) != 0;
             InterprocessorLock.unlock();
             saveReq = true;
             request->send(200);
@@ -96,6 +113,9 @@ void WebsiteController::init() {
         json["fadespeed"] = persistentData->fadespeed;
         Serial.print('.');
         json["sensitivity"] = persistentData->touchThreshold;
+        json["adaptivetouch"] = persistentData->adaptiveTouch;
+        json["touchvalue"] = persistentData->touchRawValue;
+        json["effectivetouchthreshold"] = persistentData->touchEffectiveThreshold;
         json["fanspeed"] = persistentData->fanspeed;
         json["fanrpm"] = persistentData->fanRPM;
         Serial.print('.');
@@ -113,6 +133,7 @@ void WebsiteController::updatePersistence() {
     persistentData->boopColor.setColor(persistentData->boopColor.getColorOfUint32(boopColor));
     persistentData->fadespeed = fadespeed;
     persistentData->touchThreshold = sensitivity;
+    persistentData->adaptiveTouch = adaptiveTouch;
     persistentData->fanspeed = fanspeed;
     if(saveReq) {
         persistentData->savePersistentToEMMC = true;
